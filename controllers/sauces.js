@@ -1,19 +1,22 @@
 const Sauce = require('../models/Sauce');
 const fs = require('fs');
 
-exports.likeSauce = (req, res, next) => {
-   const sauceObject = JSON.parse(req.body.sauce);
-   delete sauceObject._id;
-   delete sauceObject._userId;
-   const sauce = new Sauce({
-       ...sauceObject,
-       userId: req.auth.userId,
-       imageUrl: `${req.protocol}://${req.get('host')}/images/${req.file.filename}`
-   });
- 
-   sauce.save()
-   .then(() => { res.status(201).json({message: 'Objet enregistré !'})})
-   .catch(error => { res.status(400).json( { error })})
+exports.likeSauce = (req, res, next) => { 
+    Sauce.findOne({_id: req.params.id})
+       .then((sauce) => {
+            if (req.params.likes > 0){
+                Sauce.updateOne({ _id: req.params.id}, { likes: likes += 1, usersLiked: usersLiked.push(`${req.params.userId}`)})
+                .then(() => res.status(200).json({message : 'like ajouté!'}))
+                .catch(error => res.status(401).json({ error }));
+            } else if (req.params.dislikes > 0){
+                Sauce.updateOne({ _id: req.params.id}, { dislikes: dislikes += 1, usersDisliked: usersDisliked.push(`${req.params.userId}`)})
+                .then(() => res.status(200).json({message : 'like ajouté!'}))
+                .catch(error => res.status(401).json({ error }));
+            }
+        })
+       .catch((error) => {
+           res.status(400).json({ error });
+       });
 };
 
 exports.createSauce = (req, res, next) => {
@@ -22,7 +25,7 @@ exports.createSauce = (req, res, next) => {
    delete sauceObject._userId;
    const sauce = new Sauce({
        ...sauceObject,
-       likes: req.likes || 1,
+       likes: req.likes || 0,
        userId: req.auth.userId,
        imageUrl: `${req.protocol}://${req.get('host')}/images/${req.file.filename}`
    });
