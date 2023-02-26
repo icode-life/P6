@@ -3,15 +3,35 @@ const fs = require('fs');
 
 exports.likeSauce = (req, res, next) => { 
     Sauce.findOne({_id: req.params.id})
-       .then((sauce) => {
-            if (req.params.likes > 0){
+       .then(() => {
+            switch (req.params.like){
+                case 1:
                 Sauce.updateOne({ _id: req.params.id}, { likes: likes += 1, usersLiked: usersLiked.push(`${req.params.userId}`)})
                 .then(() => res.status(200).json({message : 'like ajouté!'}))
                 .catch(error => res.status(401).json({ error }));
-            } else if (req.params.dislikes > 0){
-                Sauce.updateOne({ _id: req.params.id}, { dislikes: dislikes += 1, usersDisliked: usersDisliked.push(`${req.params.userId}`)})
+                break;
+                case 0:
+                Sauce.updateOne({ _id: req.params.id}, { likes: likes += 1, usersLiked: usersLiked.push(`${req.params.userId}`)})
                 .then(() => res.status(200).json({message : 'like ajouté!'}))
                 .catch(error => res.status(401).json({ error }));
+                break;
+                case -1:
+                if (usersLiked.indexOf(`${req.params.userId}`) !== -1){
+                    sauce.usersLiked.filter(id => id !== req.params.userId);
+                    likes -= 1;
+                    Sauce.updateOne({ _id: req.params.id}, { 
+                    dislikes: dislikes += 1, 
+                    usersDisliked: usersDisliked.push(`${req.params.userId}`)})
+                    .then(() => res.status(200).json({message : 'dislike ajouté!'}))
+                    .catch(error => res.status(401).json({ error }));
+                }else{
+                    Sauce.updateOne({ _id: req.params.id}, { 
+                    dislikes: dislikes += 1, 
+                    usersDisliked: usersDisliked.push(`${req.params.userId}`)})
+                    .then(() => res.status(200).json({message : 'dislike ajouté!'}))
+                    .catch(error => res.status(401).json({ error }));
+                }
+                break;
             }
         })
        .catch((error) => {
