@@ -3,27 +3,36 @@ const fs = require('fs');
 
 exports.likeSauce = (req, res, next) => { 
     Sauce.findOne({_id: req.params.id})
-       .then(() => {
-            switch (req.params.like){
+       .then((sauce) => { 
+                            console.log('test');
+console.log(sauce);
+                            console.log(req.body.like);
+
+                            console.log(sauce.usersDisliked.indexOf(req.params.userId));
+            switch (req.body.like){
                 case 1:
-                    if (usersDisliked.indexOf(`${req.params.userId}`) !== -1){
+                    if (sauce.usersDisliked.indexOf(req.body.userId) !== -1){
+                        //sauce.usersDisliked.find(req.body.userId) !== undefined)
+                        console.log("if");
                         Sauce.updateOne({ _id: req.params.id}, { 
                             likes: likes += 1, 
-                            usersLiked: usersLiked.push(req.params.userId),
-                            usersDisliked: usersDisliked.filter(id => id !== req.params.userId),
+                            usersLiked: usersLiked.push(req.body.userId),
+                            usersDisliked: usersDisliked.filter(id => id !== req.body.userId),
                             dislikes: dislikes -= 1})
                         .then(() => res.status(200).json({message : 'like ajouté!'}))
                         .catch(error => res.status(401).json({ error }));
                     }else{
+                        console.log('else');
                         Sauce.updateOne({ _id: req.params.id}, { 
-                            likes: likes += 1, 
-                            usersLiked: usersLiked.push(`${req.params.userId}`)})
+                            likes: sauce.likes += 1, 
+                            usersLiked: usersLiked.push(`${req.body.userId}`)})
                         .then(() => res.status(200).json({message : 'like ajouté!'}))
                         .catch(error => res.status(401).json({ error }));
                     }
                 break;
                 case 0:
-                    if(usersLiked.indexOf(`${req.params.userId}`) !== -1){
+                    console.log("okay 0");
+                    if(usersLiked.indexOf(req.params.userId) !== -1){
                         Sauce.updateOne({_id: req.params.id}, {
                             likes: likes -=1,
                             usersLiked: usersLiked.filter(id => id !== req.params.userId)})
@@ -38,7 +47,8 @@ exports.likeSauce = (req, res, next) => {
                     }
                 break;
                 case -1:
-                    if (usersLiked.indexOf(`${req.params.userId}`) !== -1){
+                    console.log("okay -1");
+                    if (usersLiked.indexOf(req.params.userId) !== -1){
                         Sauce.updateOne({ _id: req.params.id}, { 
                             usersLiked: usersLiked.filter(id => id !== req.params.userId),
                             likes: likes -= 1,
