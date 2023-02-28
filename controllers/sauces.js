@@ -4,11 +4,7 @@ const fs = require('fs');
 exports.likeSauce = (req, res, next) => { 
     Sauce.findOne({_id: req.params.id})
        .then((sauce) => { 
-                            console.log('test');
-console.log(sauce);
-                            console.log(req.body.like);
-
-                            console.log(sauce.usersDisliked.indexOf(req.params.userId));
+        console.log('sans ça, ça foire. Un truc de ouf');
             switch (req.body.like){
                 case 1:
                     if (sauce.usersDisliked.indexOf(req.body.userId) !== -1){
@@ -24,10 +20,12 @@ console.log(sauce);
                     }else{
                         console.log('else');
                         Sauce.updateOne({ _id: req.params.id}, { 
-                            likes: sauce.likes += 1, 
-                            usersLiked: usersLiked.push(`${req.body.userId}`)})
+                            likes: sauce.likes += 1,
+                            usersLiked: sauce.usersLiked.push(`${req.body.userId}`)// += req.body.userId
+                        })
                         .then(() => res.status(200).json({message : 'like ajouté!'}))
                         .catch(error => res.status(401).json({ error }));
+                        console.log('else thru n thru');
                     }
                 break;
                 case 0:
