@@ -4,28 +4,16 @@ const fs = require('fs');
 exports.likeSauce = (req, res, next) => { 
     Sauce.findOne({_id: req.params.id})
        .then((sauce) => { 
-        console.log(req.body.userId); //si j'enlève ce console.log, la fonction entière plante ???!!
+        const user = req.body.userId;
+        const uniqueOpinion = !sauce.usersLiked.includes(user) && !sauce.usersDisliked.includes(user);
             switch (req.body.like){
                 case 1:
                     console.log('case 1');
-                    if (sauce.usersDisliked.indexOf(req.body.userId) !== -1){
-                        console.log('1 if');
-                        //sauce.usersDisliked.find(req.body.userId) !== undefined)
-                        Sauce.updateOne({ _id: req.params.id}, { 
-                            $inc: {likes: +1},
-                            $inc: {dislikes: -1},
-                            $push: {usersLiked: req.body.userId},
-                            $pull: {usersDisliked: req.body.userId}
-                            })
-                        .then(() => res.status(200).json({message : 'like ajouté!'}))
-                        .catch(error => res.status(401).json({ error }));
-                        console.log(sauce);
-                    }else{
-                        console.log('1 else');
+                    if (uniqueOpinion){
                         Sauce.updateOne({ _id: req.params.id}, { 
                             $inc: {likes: +1},
                             $push: {usersLiked: req.body.userId}
-                        })
+                            })
                         .then(() => res.status(200).json({message : 'like ajouté!'}))
                         .catch(error => res.status(401).json({ error }));
                         console.log(sauce);
@@ -33,7 +21,7 @@ exports.likeSauce = (req, res, next) => {
                 break;
                 case 0:
                     console.log("case 0");
-                    if(usersLiked.indexOf(req.body.userId) !== -1){
+                    if(sauce.usersLiked.includes(req.body.userId)){
                         console.log('0 if');
                         Sauce.updateOne({_id: req.params.id}, {
                             $inc: {likes: -1},
@@ -53,23 +41,11 @@ exports.likeSauce = (req, res, next) => {
                 break;
                 case -1:
                     console.log('case -1');
-                    if (sauce.usersLiked.indexOf(req.body.userId) !== -1){
-                        console.log("-1 if");
+                    if (uniqueOpinion){
                         Sauce.updateOne({ _id: req.params.id}, { 
-                            $inc: {likes: -1},
                             $inc: {dislikes: +1},
-                            $pull: {usersLiked: req.body.userId},
                             $push: {usersDisliked: req.body.userId}
                             })
-                        .then(() => res.status(200).json({message : 'dislike ajouté!'}))
-                        .catch(error => res.status(401).json({ error }));
-                        console.log(sauce);
-                    }else{
-                        console.log('-1 else');
-                        Sauce.updateOne({ _id: req.params.id}, { 
-                            $inc: {dislikes: +1},
-                            $push: {usersDisliked: req.body.userId}
-                        })
                         .then(() => res.status(200).json({message : 'dislike ajouté!'}))
                         .catch(error => res.status(401).json({ error }));
                         console.log(sauce);
