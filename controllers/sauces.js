@@ -5,16 +5,19 @@ exports.likeSauce = (req, res, next) => {
     Sauce.findOne({_id: req.params.id})
        .then((sauce) => { 
         const user = req.body.userId;
+        const uniqueOpinion = () => {return !sauce.usersLiked.includes(user) && !sauce.usersDisliked.includes(user)};
             switch (req.body.like){
                 case 1:
                     console.log('case 1');
-                    Sauce.updateOne({ _id: req.params.id}, { 
-                        $inc: {likes: +1},
-                        $push: {usersLiked: user}
-                        })
-                    .then(() => res.status(200).json({message : 'like ajouté!'}))
-                    .catch(error => res.status(401).json({ error }));
-                    console.log(sauce);
+                    if (uniqueOpinion()){
+                        Sauce.updateOne({ _id: req.params.id}, { 
+                            $inc: {likes: +1},
+                            $push: {usersLiked: user}
+                            })
+                        .then(() => res.status(200).json({message : 'like ajouté!'}))
+                        .catch(error => res.status(401).json({ error }));
+                        console.log(sauce);
+                    }
                 break;
                 case 0:
                     console.log("case 0");
@@ -37,13 +40,15 @@ exports.likeSauce = (req, res, next) => {
                 break;
                 case -1:
                     console.log('case -1');
-                    Sauce.updateOne({ _id: req.params.id}, { 
-                        $inc: {dislikes: +1},
-                        $push: {usersDisliked: user}
-                        })
-                    .then(() => res.status(200).json({message : 'dislike ajouté!'}))
-                    .catch(error => res.status(401).json({ error }));
-                    console.log(sauce);
+                    if(uniqueOpinion()){
+                        Sauce.updateOne({ _id: req.params.id}, { 
+                            $inc: {dislikes: +1},
+                            $push: {usersDisliked: user}
+                            })
+                        .then(() => res.status(200).json({message : 'dislike ajouté!'}))
+                        .catch(error => res.status(401).json({ error }));
+                        console.log(sauce);
+                    }
                 break;
             }
         })
